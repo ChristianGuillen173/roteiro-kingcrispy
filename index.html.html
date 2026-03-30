@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#111110">
+<title>Roteiro — King Crispy PDV</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: #111110;
+    color: #e8e6df;
+    padding: 16px 12px 40px;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container { max-width: 680px; margin: 0 auto; }
+
+  /* HEADER */
+  .header { margin-bottom: 20px; padding: 0 4px; }
+  .header h1 {
+    font-size: clamp(16px, 4vw, 20px);
+    font-weight: 600;
+    color: #f0ede4;
+    line-height: 1.3;
+  }
+  .header p { font-size: 13px; color: #6a6860; margin-top: 4px; }
+
+  /* TIMELINE */
+  .timeline {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+  .time-block {
+    padding: 10px 6px;
+    text-align: center;
+    border: 1px solid #272725;
+    border-radius: 10px;
+    background: #1a1a18;
+  }
+  .time-block .min { font-size: 15px; font-weight: 600; color: #e8e6df; }
+  .time-block .lbl { font-size: 10px; color: #6a6860; margin-top: 3px; line-height: 1.3; }
+
+  /* PROGRESS BAR */
+  .progress-wrap { margin-bottom: 20px; }
+  .progress-label { font-size: 11px; color: #6a6860; margin-bottom: 6px; display: flex; justify-content: space-between; }
+  .progress-track { height: 4px; background: #272725; border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #7F77DD, #1D9E75); border-radius: 99px; width: 0%; transition: width 0.4s ease; }
+
+  /* CARDS */
+  .slide-card {
+    border: 1px solid #272725;
+    border-radius: 14px;
+    margin-bottom: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .slide-card.active { border-color: #3a3a38; }
+
+  .slide-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 14px;
+    background: #1a1a18;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: background 0.15s;
+    min-height: 56px;
+  }
+  .slide-header:active { background: #222220; }
+
+  .slide-num {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .slide-title-wrap { flex: 1; min-width: 0; }
+  .slide-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #e8e6df;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .slide-meta { font-size: 11px; color: #6a6860; margin-top: 2px; }
+
+  .chevron {
+    font-size: 14px;
+    color: #5a5855;
+    transition: transform 0.25s ease;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .chevron.open { transform: rotate(180deg); }
+
+  /* BODY */
+  .slide-body {
+    display: none;
+    padding: 14px;
+    background: #141413;
+    border-top: 1px solid #272725;
+  }
+  .slide-body.open { display: block; }
+
+  /* FALA BOX */
+  .fala {
+    background: #1e1e1b;
+    border: 1px solid #2e2e2b;
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .fala-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: #5a5855;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+  .fala p {
+    font-size: 14px;
+    line-height: 1.75;
+    color: #c5c2b8;
+  }
+  .fala p + p { margin-top: 10px; }
+
+  /* TIPS */
+  .tips-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: #5a5855;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+  .tips { display: flex; flex-direction: column; gap: 8px; }
+  .tip { display: flex; gap: 10px; align-items: flex-start; }
+  .tip-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+  .tip p { font-size: 13px; color: #7a7870; line-height: 1.55; }
+
+  /* BADGES — dark variants */
+  .n-purple { background: #26215C; color: #CECBF6; }
+  .n-teal   { background: #04342C; color: #9FE1CB; }
+  .n-blue   { background: #042C53; color: #B5D4F4; }
+  .n-amber  { background: #412402; color: #FAC775; }
+  .n-green  { background: #173404; color: #C0DD97; }
+  .n-gray   { background: #2C2C2A; color: #D3D1C7; }
+
+  /* DOTS */
+  .dot-purple { background: #7F77DD; }
+  .dot-teal   { background: #1D9E75; }
+  .dot-blue   { background: #378ADD; }
+  .dot-amber  { background: #BA7517; }
+  .dot-coral  { background: #D85A30; }
+  .dot-green  { background: #639922; }
+  .dot-gray   { background: #888780; }
+
+  /* FOOTER */
+  .footer {
+    margin-top: 16px;
+    border: 1px solid #272725;
+    border-radius: 12px;
+    padding: 14px 16px;
+    background: #1a1a18;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .footer p { font-size: 12px; color: #6a6860; }
+  .footer strong { color: #e8e6df; font-weight: 600; }
+
+  /* OPEN ALL BUTTON */
+  .btn-wrap { display: flex; gap: 8px; margin-bottom: 16px; }
+  .btn {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #272725;
+    background: #1a1a18;
+    color: #c5c2b8;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: center;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: background 0.15s;
+  }
+  .btn:active { background: #222220; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>Roteiro — King Crispy PDV</h1>
+    <p>Christian &amp; Leonardo · 15 minutos · guia fala por slide</p>
+  </div>
+
+  <div class="timeline">
+    <div class="time-block"><div class="min">~1 min</div><div class="lbl">Slide 1 Capa</div></div>
+    <div class="time-block"><div class="min">~1 min</div><div class="lbl">Slide 2 Visao</div></div>
+    <div class="time-block"><div class="min">~5 min</div><div class="lbl">Slides 3-7 Requisitos</div></div>
+    <div class="time-block"><div class="min">~4 min</div><div class="lbl">Slides 8-10 Concorrentes</div></div>
+    <div class="time-block"><div class="min">~2 min</div><div class="lbl">Slide 11 Conclusao</div></div>
+    <div class="time-block"><div class="min">~2 min</div><div class="lbl">Perguntas</div></div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>Progresso</span>
+      <span id="prog-text">0 / 11 slides</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+  </div>
+
+  <div class="btn-wrap">
+    <button class="btn" onclick="toggleAll(true)">&#9660; Expandir tudo</button>
+    <button class="btn" onclick="toggleAll(false)">&#9650; Recolher tudo</button>
+  </div>
+
+  <div id="cards"></div>
+
+  <div class="footer">
+    <p>Toque em cada slide para ver a fala e dicas.</p>
+    <p><strong>Total estimado: 13-15 minutos</strong></p>
+  </div>
+
+</div>
+
+<script>
+var slides = [
+  {
+    num: 1, title: "Capa", time: "~1 min", color: "purple",
+    fala: [
+      "Bom dia / Boa tarde a todos. Somos Christian e Leonardo, e hoje vamos apresentar o King Crispy PDV — um sistema de ponto de venda desenvolvido do zero para uma rede de restaurantes especializada em frango frito.",
+      "O objetivo desta apresentacao e mostrar os requisitos funcionais e nao funcionais do sistema, alem de comparar nossa solucao com tres concorrentes reais do mercado. Vamos nessa."
+    ],
+    tips: [
+      { cor: "purple", txt: "Falem juntos no comeco — Christian apresenta os nomes, Leonardo complementa o contexto." },
+      { cor: "gray", txt: "Mantenham contato visual com a turma. Nao leiam o slide." }
+    ]
+  },
+  {
+    num: 2, title: "Visao Geral do Sistema", time: "~1 min", color: "teal",
+    fala: [
+      "O King Crispy PDV cobre seis grandes areas: gestao de pedidos, controle de caixa, gerenciamento de produtos e cardapio, delivery com calculo de taxa por rota real, relatorios gerenciais e controle de usuarios com perfis de acesso.",
+      "E um sistema 100% customizado — sem mensalidade, sem dependencia de terceiros, hospedado no Oracle Cloud."
+    ],
+    tips: [
+      { cor: "teal", txt: "Use o slide como apoio — aponte para cada icone enquanto fala." },
+      { cor: "gray", txt: "Maximo 60 segundos aqui. O detalhamento vem nas tabelas." }
+    ]
+  },
+  {
+    num: 3, title: "RF01 — Gestao de Pedidos", time: "~1 min", color: "blue",
+    fala: [
+      "Nossa primeira funcionalidade e o registro de pedidos. O sistema permite selecionar produtos por subgrupos — corte de frango, molho e bebida — de forma obrigatoria e em sequencia guiada.",
+      "Do lado nao funcional: resposta em ate 3 segundos, interface em formato wizard, disponibilidade de 99,5% no horario de funcionamento e rastreabilidade total de exclusoes com log de auditoria."
+    ],
+    tips: [
+      { cor: "blue", txt: "Aponte para as colunas da tabela: Descricao, Prioridade, Regra de Negocio." },
+      { cor: "blue", txt: "Destaque: 'Pedido so e confirmado com corte + pelo menos um molho' — regra real do restaurante." }
+    ]
+  },
+  {
+    num: 4, title: "RF02 — Controle de Caixa", time: "~1 min", color: "blue",
+    fala: [
+      "O segundo requisito e o controle de caixa por turno. O operador precisa abrir o caixa com saldo inicial, e o fechamento automatico acontece a meia-noite via cron job.",
+      "Os nao funcionais garantem seguranca — so o admin fecha ou altera o saldo — auditabilidade completa, geracao do relatorio em ate 5 segundos com 500 transacoes, e recuperacao automatica em caso de falha."
+    ],
+    tips: [
+      { cor: "amber", txt: "Mencione o cron job — mostra automacao, nao so interface." },
+      { cor: "gray", txt: "Se perguntarem sobre backup, a recuperabilidade (RNF02.4) ja responde." }
+    ]
+  },
+  {
+    num: 5, title: "RF03 — Produtos e Cardapio", time: "~1 min", color: "blue",
+    fala: [
+      "Aqui gerenciamos o catalogo: cadastro, edicao e inativacao de produtos por categorias — combos, baldes, porcoes, molhos e bebidas.",
+      "Produtos inativados somem do cardapio mas mantem o historico de vendas. Os nao funcionais incluem importacao via CSV em 30s, atualizacao em tempo real sem reinicializacao, suporte a mil itens e controle de acesso por perfil."
+    ],
+    tips: [
+      { cor: "teal", txt: "Destaque a atualizacao em tempo real — diferencial percebido no dia a dia." },
+      { cor: "gray", txt: "Cite o RNF03.4: atendente nao pode alterar o cardapio — so administrador." }
+    ]
+  },
+  {
+    num: 6, title: "RF04 — Delivery e Clientes", time: "~1 min", color: "blue",
+    fala: [
+      "O modulo de delivery calcula a taxa com base na distancia real via API do Google Maps — nao e linha reta. Pedidos acima de 15km sao recusados automaticamente.",
+      "Os nao funcionais cobrem fallback para API indisponivel, dados criptografados conforme LGPD (AES-256), timeout de 4 segundos e autocompletar de endereco com historico do cliente."
+    ],
+    tips: [
+      { cor: "amber", txt: "Leia os valores: ate 3km = R$7, ate 6km = R$10, ate 9km = R$13, ate 15km = R$16." },
+      { cor: "amber", txt: "Mencionar LGPD + AES-256 mostra maturidade tecnica para a banca." }
+    ]
+  },
+  {
+    num: 7, title: "RF05 — Dashboard Gerencial", time: "~1 min", color: "blue",
+    fala: [
+      "O ultimo requisito funcional e o dashboard gerencial com KPIs de vendas, receita por periodo, produtos mais vendidos e contas a pagar — acessivel so pelo Administrador.",
+      "Os nao funcionais garantem carregamento em ate 5s para 12 meses de dados, sessao expirando em 4h, exportacao em PDF e CSV compativel com Excel e Google Sheets, e rastreabilidade completa de cada relatorio gerado."
+    ],
+    tips: [
+      { cor: "green", txt: "Transicao: 'Agora que vimos os cinco requisitos, vamos comparar com o mercado.'" }
+    ]
+  },
+  {
+    num: 8, title: "Concorrente 1 — iFood", time: "~1,5 min", color: "amber",
+    fala: [
+      "O primeiro concorrente e o iFood. E a maior plataforma de delivery do Brasil, com painel em tempo real, cardapio por horario, multiplas formas de pagamento e app dedicado para entregadores.",
+      "A diferenca fundamental: o iFood e um marketplace — o restaurante depende da plataforma e paga comissao. O King Crispy PDV e proprio, sem comissao e com controle total."
+    ],
+    tips: [
+      { cor: "amber", txt: "Aponte para as telas do slide enquanto descreve as caracteristicas." },
+      { cor: "amber", txt: "'iFood = dependencia de plataforma. Nosso sistema = autonomia total.'" }
+    ]
+  },
+  {
+    num: 9, title: "Concorrente 2 — Abrahao PDV", time: "~1,5 min", color: "amber",
+    fala: [
+      "O Abrahao e um PDV brasileiro para restaurantes, com touch-screen, QR Code, comanda eletronica, impressao na cozinha, integracao com iFood e Rappi, e controle de estoque.",
+      "E o concorrente mais parecido com o King Crispy. Mas o Abrahao e SaaS — a partir de R$99/mes. Nossa solucao tem custo zero, roda no Oracle Cloud Free Tier e e 100% proprietaria."
+    ],
+    tips: [
+      { cor: "amber", txt: "Citar o preco do concorrente torna a comparacao concreta e mostra que pesquisaram." }
+    ]
+  },
+  {
+    num: 10, title: "Concorrente 3 — Goomer", time: "~1 min", color: "amber",
+    fala: [
+      "O Goomer e focado em autoatendimento via QR Code. O cliente faz o proprio pedido sem garcom, com PDV integrado e painel de gestao remota.",
+      "Resolve bem autoatendimento de mesa, mas nao foi pensado para balcao com subgrupos obrigatorios — como o King Crispy exige. Planos a partir de R$149/mes. Custo recorrente, dependencia de fornecedor."
+    ],
+    tips: [
+      { cor: "amber", txt: "Encerre com: 'Vamos agora as consideracoes finais.'" }
+    ]
+  },
+  {
+    num: 11, title: "Consideracoes Finais", time: "~2 min", color: "green",
+    fala: [
+      "Para fechar: o King Crispy PDV foi pensado para um problema real — um restaurante que precisava de um sistema sob medida, sem mensalidade e sem depender de marketplace.",
+      "Tres diferenciais principais: fluxo de subgrupos exclusivo para frango frito, calculo de taxa por rota real via Google Maps, e integracao de impressao termica via QZ Tray — com deploy gratuito no Oracle Cloud.",
+      "Proximos passos: migracao dos dados do sistema antigo, correcao do bug no hash de senhas, e homologacao com a equipe do restaurante. Obrigado pela atencao — ficamos a disposicao para perguntas."
+    ],
+    tips: [
+      { cor: "green", txt: "Christian fala os diferenciais, Leonardo fala os proximos passos." },
+      { cor: "green", txt: "Facam uma pausa antes de abrir para perguntas — nao sejam apressados." },
+      { cor: "gray", txt: "Sobre o bug de senha: 'Identificamos no modulo de autenticacao, esta no backlog com prioridade alta.'" }
+    ]
+  }
+];
+
+var colorMap = {
+  purple: { badge: "n-purple", dot: "dot-purple" },
+  teal:   { badge: "n-teal",   dot: "dot-teal"   },
+  blue:   { badge: "n-blue",   dot: "dot-blue"   },
+  amber:  { badge: "n-amber",  dot: "dot-amber"  },
+  green:  { badge: "n-green",  dot: "dot-green"  },
+  gray:   { badge: "n-gray",   dot: "dot-gray"   }
+};
+
+var openCount = 0;
+var container = document.getElementById('cards');
+
+slides.forEach(function(s, i) {
+  var c = colorMap[s.color];
+  var card = document.createElement('div');
+  card.className = 'slide-card';
+  card.id = 'card-' + i;
+
+  var falasHtml = s.fala.map(function(p) { return '<p>' + p + '</p>'; }).join('');
+  var tipsHtml = s.tips.map(function(t) {
+    var dc = (colorMap[t.cor] && colorMap[t.cor].dot) ? colorMap[t.cor].dot : 'dot-gray';
+    return '<div class="tip"><div class="tip-dot ' + dc + '"></div><p>' + t.txt + '</p></div>';
+  }).join('');
+
+  card.innerHTML =
+    '<div class="slide-header" onclick="toggle(' + i + ')">' +
+      '<div class="slide-num ' + c.badge + '">' + s.num + '</div>' +
+      '<div class="slide-title-wrap">' +
+        '<div class="slide-title">' + s.title + '</div>' +
+        '<div class="slide-meta">' + s.time + '</div>' +
+      '</div>' +
+      '<div class="chevron" id="chev-' + i + '">&#9662;</div>' +
+    '</div>' +
+    '<div class="slide-body" id="body-' + i + '">' +
+      '<div class="fala"><div class="fala-label">O que falar</div>' + falasHtml + '</div>' +
+      (s.tips.length
+        ? '<div class="tips-label">Dicas</div><div class="tips">' + tipsHtml + '</div>'
+        : '') +
+    '</div>';
+
+  container.appendChild(card);
+});
+
+var opened = {};
+
+function updateProgress() {
+  var count = Object.keys(opened).filter(function(k) { return opened[k]; }).length;
+  var pct = Math.round((count / slides.length) * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-text').textContent = count + ' / ' + slides.length + ' slides';
+}
+
+function toggle(i) {
+  var body = document.getElementById('body-' + i);
+  var chev = document.getElementById('chev-' + i);
+  var card = document.getElementById('card-' + i);
+  var isOpen = body.classList.toggle('open');
+  chev.classList.toggle('open', isOpen);
+  card.classList.toggle('active', isOpen);
+  opened[i] = isOpen;
+  updateProgress();
+}
+
+function toggleAll(open) {
+  slides.forEach(function(s, i) {
+    var body = document.getElementById('body-' + i);
+    var chev = document.getElementById('chev-' + i);
+    var card = document.getElementById('card-' + i);
+    if (open) {
+      body.classList.add('open');
+      chev.classList.add('open');
+      card.classList.add('active');
+      opened[i] = true;
+    } else {
+      body.classList.remove('open');
+      chev.classList.remove('open');
+      card.classList.remove('active');
+      opened[i] = false;
+    }
+  });
+  updateProgress();
+}
+
+updateProgress();
+</script>
+</body>
+</html>
